@@ -4,8 +4,14 @@
   "description": "A simple application to allow Trading of currency between any added coins. By default it trades BTC, FLO, and LTC.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node_modules/.bin/nyc node_modules/.bin/mocha $(find src -name '*.tests.js')",
+    "coverage": "node_modules/.bin/nyc report --reporter=text-lcov | coveralls",
     "start": "node index.js"
+  },
+  "nyc": {
+    "exclude": [
+      "**/*.tests.js"
+    ]
   },
   "author": "Skylar Young <sky@alexandria.io>",
   "license": "MIT",
@@ -18,5 +24,12 @@
     "lowdb": "^1.0.0",
     "multer": "^1.3.0",
     "recaptcha2": "^1.3.2"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "coveralls": "^3.0.0",
+    "mocha": "^4.0.1",
+    "mocha-lcov-reporter": "^1.3.0",
+    "nyc": "^11.3.0"
   }
 }

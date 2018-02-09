@@ -2,14 +2,34 @@
 var rpc = require('bitcoin');
 const util = require('./util.js');
 
-function sendToAddress (coin, address, amount, onSuccess, onError){
-	var client = new rpc.Client({
-		port: coin.rpc.port,
-		host: coin.rpc.hostname,
-		user: coin.rpc.username,
-		pass: coin.rpc.password
-	});
+function generateDepositAddress(coin) {
+	const credentials = util.getCredentials(coin)
+	var client = new rpc.Client(credentials);
+	return new Promise((resolve, reject) => {
+		client.getNewAddress((err, address) => {
+			if (err)
+				reject(err)
+			resolve(address)
+		})
+	})
+} 
 
+function getListOfAddresses(coin) {
+	const credentials = util.getCredentials(coin)
+	var client = new rpc.Client(credentials);
+	return new Promise((resolve, reject) => {
+		client.listReceivedByAddress(0, true, (err, addresses) => {
+			if (err)
+				reject(err)
+			resolve(addresses)
+		})
+	})
+}
+
+function sendToAddress (coin, address, amount, onSuccess, onError){
+	const credentials = util.getCredentials(coin)
+	var client = new rpc.Client(credentials);
+	client.getInfo(console.log)
 	client.sendToAddress(address, amount, function(err, result) {
 		if (err){
 			onError(err);
@@ -84,5 +104,7 @@ function trySend (coin, type, db_title, address, db, req, res){
 }
 
 module.exports = {
-	trySend: trySend
+	trySend,
+	generateDepositAddress,
+	getListOfAddresses
 }
