@@ -1,11 +1,5 @@
 var passwords = require("./passwords.json");
-
-if (!passwords.recaptcha2 && !passwords.coins){
-	var fs = require('fs');
-
-	fs.createReadStream('passwords.example.json').pipe(fs.createWriteStream('passwords.json'));
-	new Error("Please fill out passwords.json then restart the application!");
-}
+let allowed = require('./allowed.json')
 
 module.exports = {
 	"port": 9090,
@@ -13,25 +7,15 @@ module.exports = {
 		"site_key": passwords.recaptcha2.site_key,
 		"secret_key": passwords.recaptcha2.secret_key
 	},
+	"allowedTransactions": allowed.allowedTransactions,
 	"coins": {
-		"florincoin": {
-			"currency_code": "FLO",
+		"FLO": {
+			"currency_name": "Florincoin",
 			"rpc": {
 				"hostname": "localhost",
 				"port": "18332",
 				"username": passwords.coins.florincoin.rpc.username,
 				"password": passwords.coins.florincoin.rpc.password
-			},
-			"send_once": {
-				"enabled": true,
-				"amount": 1,
-				"currency": "FLO"
-			},
-			"send_on_interval": {
-				"enabled": true,
-				"interval_hrs": 24,
-				"amount": 0.005,
-				"currency": "USD"
 			},
 			"currency_endpoints": {
 				"usd": {
@@ -48,6 +32,58 @@ module.exports = {
 			},
 			"network": {
 				"pubKeyHash": 35,
+				"scriptHash": 8
+			}
+		},
+		"LTC": {
+			"currency_name": "Litecoin",
+			"rpc": {
+				"hostname": "localhost",
+				"port": "18333",
+				"username": passwords.coins.litecoin.rpc.username,
+				"password": passwords.coins.litecoin.rpc.password
+			},
+			"currency_endpoints": {
+				"usd": {
+					"currency_code": "USD",
+					"api_endpoint": "https://api.coinmarketcap.com/v1/ticker/litecoin/",
+					"transform_api_data": function(api_data){
+						if (api_data && api_data[0] && api_data[0].price_usd){
+							return parseFloat(api_data[0].price_usd);
+						} else {
+							return -1;
+						}
+					}
+				}
+			},
+			"network": {
+				"pubKeyHash": 48,
+				"scriptHash": 8
+			}
+		},
+		"BTC": {
+			"currency_name": "Bitcoin",
+			"rpc": {
+				"hostname": "localhost",
+				"port": "18334",
+				"username": passwords.coins.bitcoin.rpc.username,
+				"password": passwords.coins.bitcoin.rpc.password
+			},
+			"currency_endpoints": {
+				"usd": {
+					"currency_code": "USD",
+					"api_endpoint": "https://api.coinmarketcap.com/v1/ticker/bitcoin/",
+					"transform_api_data": function(api_data){
+						if (api_data && api_data[0] && api_data[0].price_usd){
+							return parseFloat(api_data[0].price_usd);
+						} else {
+							return -1;
+						}
+					}
+				}
+			},
+			"network": {
+				"pubKeyHash": 0,
 				"scriptHash": 8
 			}
 		}

@@ -1,0 +1,7 @@
+{
+    "allowedTransactions": {
+        "FLO": ["BTC", "LTC"],
+        "BTC": ["FLO"],
+        "LTC": ["FLO"]
+    }
+}

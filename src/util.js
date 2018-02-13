@@ -10,6 +10,15 @@ function isValidAddress (address, network) {
 	}
 }
 
+function getCredentials(coin) {
+	return {
+		port: coin.rpc.port,
+		host: coin.rpc.hostname,
+		user: coin.rpc.username,
+		pass: coin.rpc.password
+	}
+}
+
 function getCurrencyValue(currency, onSuccess, onError){
 	axios.get(currency.api_endpoint)
 	.then(function(res){
@@ -22,6 +31,7 @@ function getCurrencyValue(currency, onSuccess, onError){
 }
 
 module.exports = {
-	isValidAddress: isValidAddress,
-	getCurrencyValue: getCurrencyValue
+	isValidAddress,
+	getCurrencyValue,
+	getCredentials
 }
