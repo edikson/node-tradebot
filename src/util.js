@@ -6,6 +6,7 @@ function isValidAddress (address, network) {
 		let dec = bitcoin.address.fromBase58Check(address)
 		return dec.version === network.pubKeyHash || dec.version === network.scriptHash
 	} catch (e) {
+		console.log(e);
 		return false
 	}
 }

@@ -3,6 +3,8 @@
 const express = require('express');
 const bodyParser = require('body-parser')
 
+const OIPJS = require('oip-js');
+
 // Import our JSON-RPC bridge helper stuff
 const coinRPC = require('./src/coinRPC');
 // Import the local config file with our Faucet settings.
@@ -10,8 +12,9 @@ const config = require('./config.js');
 // Import the util file
 const util = require('./src/util');
 
-const Transaction = require('./src/Transaction')
-const processTx = require('./src/processTx')
+const SwapRequest = require('./src/SwapRequest')
+const WalletNotify = require('./src/WalletNotify')
+const BlockNotify = require('./src/BlockNotify')
 
 const MINUTES = 60;
 const SECONDS = 60;
@@ -48,23 +51,41 @@ app.get('/', (req, res) => {
 })
 
 // Listen to conenctions on "http://faucet:port/faucet"
-app.post('/swap', (req, res) => {
-	const transaction = new Transaction(req.query, config)
-	if (transaction.isValid())
-		transaction.make(req.query)
+app.get('/swap', (req, res) => {
+	const swap = new SwapRequest(req.query, config, db)
+	if (swap.isValid())
+		swap.make(function(address){
+			res.send(address);
+		}, function(error){
+			console.log(error);
+			res.send("Error getting address.");
+		})
 	else
-		console.log('can\'t')
+		res.send('can\'t')
+})
+
+app.get('/status', (req, res) => {
+	res.send("Not Yet Implemented.");
 })
 
 app.get('/blocknotify', (req, res) => {
-	const currency = req.query.currency
-	const coin = config.coins[currency]
-	const tx = req.query.tx
-	console.log(`The block from hash ${tx} just arrive in the blockchain of ${currency}`)
-	processTx.getInfo(tx, coin).then((info) => {
-		console.log(info)
-		res.send(info)	
-	})
+	console.log(req.query);
+
+	const block = new BlockNotify(req.query, config, db, OIPJS)
+
+	block.process();
+
+	res.send("success");
+})
+
+app.get('/walletnotify', (req, res) => {
+	console.log(req.query);
+
+	const incomingTx = new WalletNotify(req.query, config, db, OIPJS)
+	
+	incomingTx.processTx();
+
+	res.send("success");
 })
 
 app.listen(config.port, function(){

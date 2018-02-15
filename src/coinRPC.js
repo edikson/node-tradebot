@@ -26,6 +26,20 @@ function getListOfAddresses(coin) {
 	})
 }
 
+function getBlock(coin, blockHash, callback) {
+	const credentials = util.getCredentials(coin)
+	var client = new rpc.Client(credentials);
+
+	client.getBlock(blockHash, true, callback);
+}
+
+function getTransaction(coin, txid, callback) {
+	const credentials = util.getCredentials(coin)
+	var client = new rpc.Client(credentials);
+
+	client.getTransaction(txid, true, callback);
+}
+
 function sendToAddress (coin, address, amount, onSuccess, onError){
 	const credentials = util.getCredentials(coin)
 	var client = new rpc.Client(credentials);
@@ -38,7 +52,7 @@ function sendToAddress (coin, address, amount, onSuccess, onError){
 				client.getRawTransaction(result, 1, function(err, res){
 					if (err){
 						console.log(err);
-						onSuccess(result)
+						onError(result)
 					} else {
 						console.log('\x1b[36m%s\x1b[0m', 'Sent ' + amount + ' ' + coin.currency_code + ' to ' + address);
 						onSuccess(res);
@@ -106,5 +120,8 @@ function trySend (coin, type, db_title, address, db, req, res){
 module.exports = {
 	trySend,
 	generateDepositAddress,
-	getListOfAddresses
+	getListOfAddresses,
+	getBlock,
+	getTransaction,
+	sendToAddress
 }

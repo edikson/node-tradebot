@@ -23,6 +23,7 @@
     "express": "^4.16.2",
     "lowdb": "^1.0.0",
     "multer": "^1.3.0",
+    "oip-js": "^1.0.20",
     "recaptcha2": "^1.3.2"
   },
   "devDependencies": {

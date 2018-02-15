@@ -2,7 +2,7 @@ var passwords = require("./passwords.json");
 let allowed = require('./allowed.json')
 
 module.exports = {
-	"port": 9090,
+	"port": 3846,
 	"recaptcha2": {
 		"site_key": passwords.recaptcha2.site_key,
 		"secret_key": passwords.recaptcha2.secret_key
@@ -10,7 +10,7 @@ module.exports = {
 	"allowedTransactions": allowed.allowedTransactions,
 	"coins": {
 		"FLO": {
-			"currency_name": "Florincoin",
+			"currency_name": "florincoin",
 			"rpc": {
 				"hostname": "localhost",
 				"port": "18332",
@@ -36,10 +36,10 @@ module.exports = {
 			}
 		},
 		"LTC": {
-			"currency_name": "Litecoin",
+			"currency_name": "litecoin",
 			"rpc": {
 				"hostname": "localhost",
-				"port": "18333",
+				"port": "19332",
 				"username": passwords.coins.litecoin.rpc.username,
 				"password": passwords.coins.litecoin.rpc.password
 			},
@@ -58,11 +58,11 @@ module.exports = {
 			},
 			"network": {
 				"pubKeyHash": 48,
-				"scriptHash": 8
+				"scriptHash": 50
 			}
 		},
 		"BTC": {
-			"currency_name": "Bitcoin",
+			"currency_name": "bitcoin",
 			"rpc": {
 				"hostname": "localhost",
 				"port": "18334",
@@ -84,8 +84,13 @@ module.exports = {
 			},
 			"network": {
 				"pubKeyHash": 0,
-				"scriptHash": 8
+				"scriptHash": 5
 			}
 		}
-	}
+	},
+	"zero_confirmation_send": {
+		"fiat": "usd",
+		"amount": 0.25
+	},
+	"min_confirmations": 2
 }
