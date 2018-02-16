@@ -16,6 +16,9 @@ class WalletNotify {
 	}
 
 	processTx(onSuccess, onError) {
+		if (!this.db_)
+			return;
+
 		var txSearch = this.db_
 			.get('depositReceived')
 			.find({ txid: this.txid_ })
@@ -31,7 +34,7 @@ class WalletNotify {
 					for (var tx of info.details){
 						if (tx.category === "receive"){
 							var txSearch = _this.db_
-								.get('waitingForDeposit')
+								.get('swapRequests')
 								.find({ depositAddress: tx.address })
 								.value()
 
@@ -51,7 +54,7 @@ class WalletNotify {
 	// This method is run on the initial tx ingestion.
 	depositReceived(txinfo, txdetail, txSearch, coin) {
 		var txSearch = this.db_
-			.get('waitingForDeposit')
+			.get('swapRequests')
 			.find({ depositAddress: txdetail.address })
 			.value()
 
@@ -60,7 +63,8 @@ class WalletNotify {
 			confirmations: txinfo.confirmations,
 			info: txinfo,
 			detail: txdetail,
-			swapRequest: txSearch
+			swapRequest: txSearch,
+			status: "waiting"
 		}
 
 		this.db_
@@ -99,6 +103,10 @@ class WalletNotify {
 
 		for (var tx of txSearch){
 			coinRPC.getTransaction(this.config_.coins[tx.swapRequest.from], tx.info.txid, function(err, info){
+				if (err){
+					console.error(err)
+					return;
+				}
 
 				var updateConfirm = _this.db_
 					.get('depositReceived')
@@ -200,20 +208,60 @@ class WalletNotify {
 
 				if (!txSearch) {
 					console.log("Send " + CoinToCoinValue + " " + coinTo + " to " + receiveAddress + " for " + amount + " " + coinFrom)
-					
-					coinRPC.sendToAddress(coinConfig, tx.swapRequest.receiveAddress, CoinToCoinValue, function(success){
-						_this.db_.get("swapSent").push({
-							"timestamp": Date.now(),
-							"currency_name": coinTo,
-							"address": tx.swapRequest.receiveAddress,
-							"amount": CoinToCoinValue,
-							"txid": success.txid, 
-							"origTxid": txid,
-							"status": "sent_successfully"
-						}).write();
-					}, function(error){
-						console.log("Error sending funds via RPC!", error);
-					})
+
+					if (CoinToCoinValue < coinConfig.send_min){
+						console.log("Can't send value that small, skipping.");
+
+						var deposit = _this.db_.get("depositReceived")
+							.find({txid: txid})
+							.value();
+
+						_this.db_.get("cantSend")
+							.push(deposit)
+							.write();
+
+						_this.db_.get("depositReceived")
+							.remove({txid: txid})
+							.write();
+
+						return;
+					}
+
+					var dep = _this.db_.get("depositReceived")
+						.find({txid: txid})
+						.value();
+
+					if (dep.status === "waiting"){
+
+						_this.db_.get("depositReceived")
+							.find({txid: txid})
+							.assign({status: "sending"})
+							.write();
+
+						coinRPC.sendToAddress(coinConfig, tx.swapRequest.receiveAddress, CoinToCoinValue, function(success){
+							_this.db_.get("swapSent").push({
+								"timestamp": Date.now(),
+								"currency_name": coinTo,
+								"address": tx.swapRequest.receiveAddress,
+								"amount": CoinToCoinValue,
+								"txid": success.txid, 
+								"origTxid": txid,
+								"swapRequest": tx.swapRequest,
+								"status": "sent_successfully"
+							}).write();
+
+							_this.db_.get("depositReceived")
+								.remove({txid: txid})
+								.write();
+						}, function(error){
+							_this.db_.get("depositReceived")
+								.find({txid: txid})
+								.assign({status: "waiting"})
+								.write();
+
+							console.log("Error sending funds via RPC!", error, error.name, error.code);
+						})
+					}
 				} else {
 					console.log("ALREADY SENT!!!");
 				}

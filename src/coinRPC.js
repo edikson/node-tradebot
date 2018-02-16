@@ -43,7 +43,6 @@ function getTransaction(coin, txid, callback) {
 function sendToAddress (coin, address, amount, onSuccess, onError){
 	const credentials = util.getCredentials(coin)
 	var client = new rpc.Client(credentials);
-	client.getInfo(console.log)
 	client.sendToAddress(address, amount, function(err, result) {
 		if (err){
 			onError(err);
@@ -54,7 +53,7 @@ function sendToAddress (coin, address, amount, onSuccess, onError){
 						console.log(err);
 						onError(result)
 					} else {
-						console.log('\x1b[36m%s\x1b[0m', 'Sent ' + amount + ' ' + coin.currency_code + ' to ' + address);
+						console.log('\x1b[36m%s\x1b[0m', 'Sent ' + amount + ' ' + coin.currency_name + ' to ' + address);
 						onSuccess(res);
 					}
 				})

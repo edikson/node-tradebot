@@ -34,11 +34,8 @@ class SwapRequest {
                 to: this.to_,
                 receiveAddress: this.receiveAddress_, // This is the User Supplied address they want to receive the coins at
                 depositAddress: depositAddress, // This is the Tradebot generated address where we want the user to deposit their coins to
-                status: {
-                    type: "WAITING_FOR_DEPOSIT"
-                }
             }
-            this.db_.get("waitingForDeposit").push(swapRecord).write()
+            this.db_.get("swapRequests").push(swapRecord).write()
             onSuccess(depositAddress);
         }).catch(onError)
     }

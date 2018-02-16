@@ -11,9 +11,10 @@ module.exports = {
 	"coins": {
 		"FLO": {
 			"currency_name": "florincoin",
+			"send_min": 0.001,
 			"rpc": {
 				"hostname": "localhost",
-				"port": "18332",
+				"port": "7313",
 				"username": passwords.coins.florincoin.rpc.username,
 				"password": passwords.coins.florincoin.rpc.password
 			},
@@ -37,6 +38,7 @@ module.exports = {
 		},
 		"LTC": {
 			"currency_name": "litecoin",
+			"send_min": 0.001,
 			"rpc": {
 				"hostname": "localhost",
 				"port": "19332",
@@ -63,6 +65,7 @@ module.exports = {
 		},
 		"BTC": {
 			"currency_name": "bitcoin",
+			"send_min": 0.001,
 			"rpc": {
 				"hostname": "localhost",
 				"port": "18334",

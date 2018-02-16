@@ -31,10 +31,11 @@ const db = low(adapter);
 
 // Setup database defaults
 db.defaults({
-	waitingForDeposit: [], // Tracks swaps that are waiting for deposits to be made (waiting for the user to deposit funds)
+	swapRequests: [], // Contains information about the users created swap requests
 	depositReceived: [], // Tracks swaps that have received a transaction, but have not yet been sent out yet. This usually will hold transactions waiting on extra confirmations.
 	swapSent: [], // Contains swaps that have finished/completed.
-	completedBlocksInterval: [] // Contains a list of blocks that have been successfully processed.
+	completedBlocksInterval: [], // Contains a list of blocks that have been successfully processed.
+	cantSend: [] // Contains information about depositReceived that cannot be processed for some reason. Usually this happens if the amount they sent is too low.
 }).write();
 
 // Start up the "app" (webserver)
@@ -78,12 +79,20 @@ app.get('/blocknotify', (req, res) => {
 	res.send("success");
 })
 
-app.get('/walletnotify', (req, res) => {
-	console.log(req.query);
+var processingTxs = [];
 
+app.get('/walletnotify', (req, res) => {
 	const incomingTx = new WalletNotify(req.query, config, db, OIPJS)
-	
-	incomingTx.processTx();
+
+	if (processingTxs.includes(req.query.txid)){
+		setTimeout(incomingTx.processTx, 5000)
+	} else {
+		processingTxs.push(req.query.txid)
+		incomingTx.processTx();
+		setTimeout(function(){
+			processingTxs.splice(processingTxs.indexOf(req.query.txid), 1)
+		}, 4000)
+	}
 
 	res.send("success");
 })
