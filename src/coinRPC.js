@@ -6,7 +6,7 @@ function generateDepositAddress(coin) {
 	const credentials = util.getCredentials(coin)
 	var client = new rpc.Client(credentials);
 	return new Promise((resolve, reject) => {
-		client.getNewAddress((err, address) => {
+		client.getNewAddress("tradebot", (err, address) => {
 			if (err)
 				reject(err)
 			resolve(address)
