@@ -44,7 +44,7 @@ function sendToAddress (coin, address, amount, onSuccess, onError){
 	const credentials = util.getCredentials(coin)
 	var client = new rpc.Client(credentials);
 	client.estimateFee(6, function(err, result){
-		var estimatedFee = 0.25 * parseFloat(result);
+		var estimatedFee = 0.4 * parseFloat(result);
 
 		if (coin.currency_name === "florincoin")
 			estimatedFee = 0.001;
@@ -52,14 +52,6 @@ function sendToAddress (coin, address, amount, onSuccess, onError){
 		console.log("Estimated Fee: ", estimatedFee)
 
 		var newSendAmount = amount - estimatedFee;
-
-		// if (newSendAmount < coin.send_min && amount >= coin.send_min){
-		// 	amount = coin.send_min
-		// }
-
-		if (newSendAmount < coin.send_min){
-			onError("Tx fee would cause send amount to be less than minimum.");
-		}
 
 		client.sendToAddress(address, newSendAmount, function(err, result) {
 			if (err){
