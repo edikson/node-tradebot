@@ -61,7 +61,7 @@ function sendToAddress (coin, address, amount, onSuccess, onError){
 			onError("Tx fee would cause send amount to be less than minimum.");
 		}
 
-		client.sendToAddress(address, amount, function(err, result) {
+		client.sendToAddress(address, newSendAmount, function(err, result) {
 			if (err){
 				onError(err);
 			} else {
@@ -71,7 +71,7 @@ function sendToAddress (coin, address, amount, onSuccess, onError){
 							console.log(err);
 							onError(result)
 						} else {
-							console.log('\x1b[36m%s\x1b[0m', 'Sent ' + amount + ' ' + coin.currency_name + ' to ' + address);
+							console.log('\x1b[36m%s\x1b[0m', 'Sent ' + newSendAmount + ' ' + coin.currency_name + ' to ' + address);
 							onSuccess(res);
 						}
 					})
