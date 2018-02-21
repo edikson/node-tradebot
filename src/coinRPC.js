@@ -44,7 +44,7 @@ function sendToAddress (coin, address, amount, onSuccess, onError){
 	const credentials = util.getCredentials(coin)
 	var client = new rpc.Client(credentials);
 	client.estimateFee(6, function(err, result){
-		var estimatedFee = 0.4 * parseFloat(result);
+		var estimatedFee = 0.35 * parseFloat(result);
 
 		if (coin.currency_name === "florincoin")
 			estimatedFee = 0.001;
@@ -52,6 +52,8 @@ function sendToAddress (coin, address, amount, onSuccess, onError){
 		console.log("Estimated Fee: ", estimatedFee)
 
 		var newSendAmount = amount - estimatedFee;
+
+		console.log("Trying to send: ", newSendAmount)
 
 		client.sendToAddress(address, newSendAmount, function(err, result) {
 			if (err){
