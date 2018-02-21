@@ -43,6 +43,9 @@ function getTransaction(coin, txid, callback) {
 function sendToAddress (coin, address, amount, onSuccess, onError){
 	const credentials = util.getCredentials(coin)
 	var client = new rpc.Client(credentials);
+	client.estimateFee(6, function(err, result){
+		console.log("Estimated Fee: ", result)
+	})
 	client.sendToAddress(address, amount, function(err, result) {
 		if (err){
 			onError(err);
