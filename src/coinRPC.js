@@ -53,6 +53,8 @@ function sendToAddress (coin, address, amount, onSuccess, onError){
 
 		var newSendAmount = amount - estimatedFee;
 
+		newSendAmount = parseFloat(newSendAmount.toFixed(8));
+
 		console.log("Trying to send: ", newSendAmount)
 
 		client.sendToAddress(address, newSendAmount, function(err, result) {
