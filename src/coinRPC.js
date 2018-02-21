@@ -44,26 +44,42 @@ function sendToAddress (coin, address, amount, onSuccess, onError){
 	const credentials = util.getCredentials(coin)
 	var client = new rpc.Client(credentials);
 	client.estimateFee(6, function(err, result){
-		console.log("Estimated Fee: ", result)
-	})
-	client.sendToAddress(address, amount, function(err, result) {
-		if (err){
-			onError(err);
-		} else {
-			try {
-				client.getRawTransaction(result, 1, function(err, res){
-					if (err){
-						console.log(err);
-						onError(result)
-					} else {
-						console.log('\x1b[36m%s\x1b[0m', 'Sent ' + amount + ' ' + coin.currency_name + ' to ' + address);
-						onSuccess(res);
-					}
-				})
-			} catch (e) {
-				onSuccess(result);
-			}
+		var estimatedFee = 0.25 * parseFloat(result);
+
+		if (coin.currency_name === "florincoin")
+			estimatedFee = 0.001;
+
+		console.log("Estimated Fee: ", estimatedFee)
+
+		var newSendAmount = amount - estimatedFee;
+
+		// if (newSendAmount < coin.send_min && amount >= coin.send_min){
+		// 	amount = coin.send_min
+		// }
+
+		if (newSendAmount < coin.send_min){
+			onError("Tx fee would cause send amount to be less than minimum.");
 		}
+
+		client.sendToAddress(address, amount, function(err, result) {
+			if (err){
+				onError(err);
+			} else {
+				try {
+					client.getRawTransaction(result, 1, function(err, res){
+						if (err){
+							console.log(err);
+							onError(result)
+						} else {
+							console.log('\x1b[36m%s\x1b[0m', 'Sent ' + amount + ' ' + coin.currency_name + ' to ' + address);
+							onSuccess(res);
+						}
+					})
+				} catch (e) {
+					onSuccess(result);
+				}
+			}
+		})
 	})
 }
 
